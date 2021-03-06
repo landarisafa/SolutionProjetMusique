@@ -13,7 +13,7 @@ namespace MyMusic.Data.Repositories
     {
         private MyMusicDbContext MyMusicDbContext
         {
-            get { return Context as MyMusicDbContext; }
+            get { return _context as MyMusicDbContext; }
         }
         public MusicRepository(MyMusicDbContext context)
        : base(context)
