@@ -31,7 +31,7 @@ namespace MyMusic.API
             services.AddControllers();
 
             //Configuration for SQL server
-            //Définition du dbContect en lui donnant unechaine de connection string de l'appsetting 
+            //Définition du dbContect en lui donnant une chaine de connection string de l'appsetting 
             // et en indiquant le dll corresspondant (assembly)
             services.AddDbContext<MyMusicDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default"), x => x.MigrationsAssembly("MyMusic.Data")));
             //dependency Injection

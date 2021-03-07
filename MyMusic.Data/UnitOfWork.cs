@@ -16,7 +16,7 @@ namespace MyMusic.Data
 
         public UnitOfWork(MyMusicDbContext context)
         {
-            this._context = context;
+            _context = context;
         }
         public IMusicRepository Musics => _musicRepository = _musicRepository ?? new MusicRepository(_context);
 

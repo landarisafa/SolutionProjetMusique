@@ -10,7 +10,7 @@ namespace MyMusic.Data.Repositories
 {
     public class ArtistRepository :Repository<Artist>,IArtistRepository
     {
-        private MyMusicDbContext MyMusicDbContext
+        private MyMusicDbContext _myMusicDbContext
         {
             get { return _context as MyMusicDbContext; }
         }
@@ -20,32 +20,17 @@ namespace MyMusic.Data.Repositories
 
         public async Task<IEnumerable<Artist>> GetAllWithMusicsAsync()
         {
-            return await MyMusicDbContext.Artists
+            return await _myMusicDbContext.Artists
                 .Include(a => a.Musics)
                 .ToListAsync();
         }
 
         public Task<Artist> GetWithMusicsByIdAsync(int id)
         {
-            return MyMusicDbContext.Artists
+            return _myMusicDbContext.Artists
                 .Include(a => a.Musics)
                 .SingleOrDefaultAsync(a => a.Id == id);
         }
 
-        async Task<IEnumerable<Artist>> IArtistRepository.GetAllWithMusicsAsync()
-        {
-            return await MyMusicDbContext.Artists
-              .Include(a => a.Musics)
-              .ToListAsync();
-        }
-
-        Task<Artist> IArtistRepository.GetWithMusicsByIdAsync(int id)
-        {
-            return MyMusicDbContext.Artists
-          .Include(a => a.Musics)
-         .SingleOrDefaultAsync(a => a.Id == id);
-        }
-
-   
     }
 }

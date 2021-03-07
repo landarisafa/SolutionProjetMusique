@@ -45,7 +45,7 @@ namespace MyMusic.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder
-            .Sql("DELETE FROM Musics");
+                .Sql("DELETE FROM Musics");
 
             migrationBuilder
                 .Sql("DELETE FROM Artists");
