@@ -1,22 +1,18 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using MyMusic.Data;
 using MyMusic.Data.MongoDB.Repository;
 using MyMusic.Data.MongoDB.Setting;
+using MyMusic.Services.Services;
 using MyMusicCore;
+using MyMusicCore.Services;
 using MysMusic.Core.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MysMusic.Core.Services;
 
 namespace MyMusic.API
 {
@@ -51,10 +47,17 @@ namespace MyMusic.API
             //Singleton parceque tt l'application va utiliser une seule instance de connexion à la bd mongo
             services.AddSingleton<IMongoClient, MongoClient>(
           _ => new MongoClient(Configuration.GetValue<string>("MongoDB:ConnectionString")));
-            
-            //
-            services.AddScoped<IComposerRepository, ComposerRepository>();
+
+            //DI IDatabaseSettings
             services.AddTransient<IDatabaseSettings, DatabaseSettings>();
+
+            //DI IComposerRepository
+            services.AddScoped<IComposerRepository, ComposerRepository>();
+
+            // Services 
+            services.AddTransient<IMusicService, MusicService>();
+            services.AddTransient<IArtistService, ArtistService>();
+            services.AddTransient<IComposerService, ComposerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
