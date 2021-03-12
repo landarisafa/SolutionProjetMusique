@@ -14,6 +14,7 @@ using MyMusicCore;
 using MyMusicCore.Services;
 using MysMusic.Core.Repositories;
 using MysMusic.Core.Services;
+using System.Text.Json.Serialization;
 
 namespace MyMusic.API
 {
@@ -29,7 +30,9 @@ namespace MyMusic.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+               );
 
             //Configuration for SQL server
             //Définition du dbContect en lui donnant une chaine de connection string de l'appsetting 
@@ -66,6 +69,9 @@ namespace MyMusic.API
                 c.SwaggerDoc("v1", new OpenApiInfo
                 { Title = "Put title here", Description = "DotNet Core Api 3 - with swagger" });
             });
+
+            // AutoMapper
+            services.AddAutoMapper(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
