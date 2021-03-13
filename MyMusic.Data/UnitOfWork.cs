@@ -1,5 +1,6 @@
 ﻿using MyMusic.Data.Repositories;
 using MyMusicCore;
+using MyMusicCore.Repositories;
 using MyMusicCore.Repository;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace MyMusic.Data
         private readonly MyMusicDbContext _context;
         private IMusicRepository _musicRepository;
         private IArtistRepository _artistRepository;
+        private IUserRepository _userRepository;
 
         public UnitOfWork(MyMusicDbContext context)
         {
@@ -21,6 +23,8 @@ namespace MyMusic.Data
         public IMusicRepository Musics => _musicRepository = _musicRepository ?? new MusicRepository(_context);
 
         public IArtistRepository Artists => _artistRepository = _artistRepository ?? new ArtistRepository(_context);
+
+        public IUserRepository Users => _userRepository = _userRepository ?? new UserRepository(_context);
 
         public async Task<int> CommitAsync()
         {

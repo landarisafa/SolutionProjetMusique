@@ -56,5 +56,11 @@ namespace MyMusic.Data.Repositories
         {
             return _context.Set<TEntity>().SingleOrDefaultAsync(predicate);
         }
+
+        public TEntity Update(TEntity entity)
+        {
+            _context.Set<TEntity>().Update(entity);
+            return entity;
+        }
     }
 }

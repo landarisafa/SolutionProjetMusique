@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MyMusic.Data\MyMusic.Data.csproj" />
+    <ProjectReference Include="..\MyMusicCore\MyMusicCore.csproj" />
   </ItemGroup>
 
 </Project>

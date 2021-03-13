@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyMusic.API.Resources;
 using MyMusic.API.Validation;
@@ -15,13 +16,11 @@ namespace MyMusic.API.Controllers
     public class MusicController : ControllerBase
     {
         private readonly IMusicService _musicService;
-        private readonly IArtistService _artistService;
         private readonly IMapper _mapperService;
 
-        public MusicController(IMusicService musicService, IArtistService artistService, IMapper mapperService)
+        public MusicController(IMusicService musicService, IMapper mapperService)
         {
             _musicService = musicService;
-            _artistService = artistService;
             _mapperService = mapperService;
         }
 
@@ -30,9 +29,9 @@ namespace MyMusic.API.Controllers
         {
             try
             {
-                var musics = await _musicService.GetAllWithArtist();
+                IEnumerable<Music> musics = await _musicService.GetAllWithArtist();
                 //return Ok(musics);
-                var musicResources = _mapperService.Map<IEnumerable<Music>, IEnumerable<MusicResource>>(musics);
+                IEnumerable<MusicResource> musicResources = _mapperService.Map<IEnumerable<Music>, IEnumerable<MusicResource>>(musics);
                 return Ok(musicResources);
             }
             catch (Exception ex)
@@ -58,6 +57,7 @@ namespace MyMusic.API.Controllers
         }
 
         [HttpPost("")]
+        [Authorize]
         public async Task<ActionResult<MusicResource>> CreateMusic(SaveMusicResource saveMusicResource)
         {
             //GET Current user

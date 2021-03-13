@@ -1,4 +1,5 @@
-﻿using MyMusicCore.Repository;
+﻿using MyMusicCore.Repositories;
+using MyMusicCore.Repository;
 using System;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ namespace MyMusicCore
     {
         IArtistRepository Artists { get; }
         IMusicRepository Musics { get; }
+        IUserRepository Users { get; }
         Task<int> CommitAsync();
     }
 }

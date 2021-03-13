@@ -16,5 +16,6 @@ namespace MyMusicCore.Repository
         Task AddRangeAsync(IEnumerable<TEntity> entities);
         void Remove(TEntity entity);
         void RemoveRange(IEnumerable<TEntity> entities);
+        TEntity Update(TEntity entity);
     }
 }

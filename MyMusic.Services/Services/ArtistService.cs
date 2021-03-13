@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MyMusic.Services.Services
 {
-    public class ArtistService: IArtistService
+    public class ArtistService : IArtistService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -45,6 +45,8 @@ namespace MyMusic.Services.Services
         public async Task UpdateArtist(Artist artistToBeUpdated, Artist artist)
         {
             artistToBeUpdated.Name = artist.Name;
+
+            _unitOfWork.Artists.Update(artistToBeUpdated);
 
             await _unitOfWork.CommitAsync();
         }

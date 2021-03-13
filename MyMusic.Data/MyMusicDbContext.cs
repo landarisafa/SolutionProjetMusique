@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyMusic.Data.Configuration;
 using MyMusicCore.Models;
+using MysMusic.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +12,7 @@ namespace MyMusic.Data
     {
         public DbSet<Music> Musics { get; set; }
         public DbSet<Artist> Artists { get; set; }
+        public DbSet<User> Users { get; set; }
 
         public MyMusicDbContext(DbContextOptions<MyMusicDbContext> options)
        : base(options)
@@ -22,6 +24,9 @@ namespace MyMusic.Data
 
             builder
                 .ApplyConfiguration(new ArtistConfiguration());
+
+            builder
+                .ApplyConfiguration(new UserConfiguration());
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MyMusic.Services.Services
 {
-    public class MusicService: IMusicService
+    public class MusicService : IMusicService
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -50,12 +50,15 @@ namespace MyMusic.Services.Services
 
         public async Task UpdateMusic(Music musicToBeUpdated, Music music)
         {
+            //A vérifier why using 2 entities music
             musicToBeUpdated.Name = music.Name;
             musicToBeUpdated.ArtistId = music.ArtistId;
+
+            _unitOfWork.Musics.Update(musicToBeUpdated);
 
             await _unitOfWork.CommitAsync();
         }
     }
 
-   
+
 }

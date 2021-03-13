@@ -40,9 +40,12 @@ namespace MyMusic.Data.MongoDB.Repository
 
         public async Task<IEnumerable<Composer>> GetAllComposers()
         {
+            FilterDefinition<Composer> filter = Builders<Composer>.Filter.Empty;
+     
             return await _context
                           .Composers
-                          .Find(_ => true)
+                          .Find(filter)
+                          //.Find(_ => true)
                           .ToListAsync();
         }
 
@@ -61,8 +64,8 @@ namespace MyMusic.Data.MongoDB.Repository
         {
             ObjectId idComposer = new ObjectId(id);
             FilterDefinition<Composer> filter = Builders<Composer>.Filter.Eq(m => m.Id, idComposer);
-            var update = Builders<Composer>.Update.Set("FirstName", composer.FirstName).
-                Set("LastName", composer.LastName);
+            UpdateDefinition<Composer> update = Builders<Composer>.Update.Set("FirstName", composer.FirstName)
+                                                                         .Set("LastName", composer.LastName);
 
             _context.Composers.FindOneAndUpdate(filter, update);
             // _context.Composers.ReplaceOne(filter, composer);
