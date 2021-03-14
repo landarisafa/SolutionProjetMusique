@@ -7,7 +7,9 @@ using MyMusicCore.Models;
 using MyMusicCore.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace MyMusic.API.Controllers
 {
@@ -45,9 +47,10 @@ namespace MyMusic.API.Controllers
         {
             try
             {
-                var music = await _musicService.GetMusicById(id);
+                Music music = await _musicService.GetMusicById(id);
                 if (music == null) return NotFound();
-                var musicResource = _mapperService.Map<Music, MusicResource>(music);
+                //mappage
+                MusicResource musicResource = _mapperService.Map<Music, MusicResource>(music);
                 return Ok(musicResource);
             }
             catch (Exception ex)
@@ -57,60 +60,87 @@ namespace MyMusic.API.Controllers
         }
 
         [HttpPost("")]
-        [Authorize]
+        // [Authorize]
         public async Task<ActionResult<MusicResource>> CreateMusic(SaveMusicResource saveMusicResource)
         {
-            //GET Current user
-            var userId = User.Identity.Name;
-            // Validation
-            var validation = new SaveMusicResourceValidator();
-            var validationResult = await validation.ValidateAsync(saveMusicResource);
-            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
-            // mappage
-            var music = _mapperService.Map<SaveMusicResource, Music>(saveMusicResource);
-            // Creation de music
-            var newMusic = await _musicService.CreateMusic(music);
-            // mappage
-            var musicResource = _mapperService.Map<Music, MusicResource>(newMusic);
-            return Ok(musicResource);
+            try
+            {
+                //GET Current user
+                var userId = User.Identity.Name;
+                // Validation
+                SaveMusicResourceValidator validation = new SaveMusicResourceValidator();
+                ValidationResult validationResult = await validation.ValidateAsync(saveMusicResource);
+                if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+                // mappage view à la BD
+                Music music = _mapperService.Map<SaveMusicResource, Music>(saveMusicResource);
+                // Creation de music
+                Music newMusic = await _musicService.CreateMusic(music);
+                // mappage BD à la view
+                MusicResource musicResource = _mapperService.Map<Music, MusicResource>(newMusic);
+                return Ok(musicResource);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<MusicResource>> UpdateMusic(int id, SaveMusicResource saveMusicResource)
         {
-            /// validation
-            var validation = new SaveMusicResourceValidator();
-            var validationResult = await validation.ValidateAsync(saveMusicResource);
-            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+            try
+            {
+                // si la music existe depuis le id
+                Music musicUpdate = await _musicService.GetMusicById(id);
+                if (musicUpdate == null) return BadRequest("la music n'existe pas ");
 
-            // si la music existe depuis le id
+                /// validation
+                SaveMusicResourceValidator validation = new SaveMusicResourceValidator();
+                ValidationResult validationResult = await validation.ValidateAsync(saveMusicResource);
+                if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
-            var musicUpdate = await _musicService.GetMusicById(id);
-            if (musicUpdate == null) return BadRequest("la music n'existe pas ");
-            var music = _mapperService.Map<SaveMusicResource, Music>(saveMusicResource);
-            await _musicService.UpdateMusic(musicUpdate, music);
-            var musicUpdateNew = await _musicService.GetMusicById(id);
-            var musicResourceUpdate = _mapperService.Map<Music, SaveMusicResource>(musicUpdateNew);
-            return Ok(musicResourceUpdate);
+                //mappage view to db
+                Music music = _mapperService.Map<SaveMusicResource, Music>(saveMusicResource);
+                //upadate dans la bd
+                await _musicService.UpdateMusic(musicUpdate, music);
+                //get the updated music
+                Music musicUpdateNew = await _musicService.GetMusicById(id);
+                //mappage bd to view
+                SaveMusicResource musicResourceUpdate = _mapperService.Map<Music, SaveMusicResource>(musicUpdateNew);
+                return Ok(musicResourceUpdate);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteMusic(int id)
         {
-            var music = await _musicService.GetMusicById(id);
-            if (music == null) return BadRequest("La musique n'existe pas");
+            try
+            {
+                Music music = await _musicService.GetMusicById(id);
+                if (music == null) return BadRequest("La musique n'existe pas");
 
-            await _musicService.DeleteMusic(music);
-            return NoContent();
+                await _musicService.DeleteMusic(music);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpGet("Artist/id")]
+        [HttpGet("Artist/{id}")]
         public async Task<ActionResult<IEnumerable<MusicResource>>> GetAllMusicByIdArtist(int id)
         {
             try
             {
                 var musics = await _musicService.GetMusicsByArtistId(id);
                 if (musics == null) return BadRequest("Pour cet artist il n'ya des musiques");
-                var musicResources = _mapperService.Map<IEnumerable<Music>, IEnumerable<MusicResource>>(musics);
+                IEnumerable<MusicResource> musicResources = _mapperService.Map<IEnumerable<Music>, IEnumerable<MusicResource>>(musics);
                 return Ok(musicResources);
             }
             catch (Exception ex)

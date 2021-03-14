@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using MyMusic.API.Resources;
 using MyMusic.API.Validation;
@@ -27,9 +26,16 @@ namespace MyMusic.API.Controllers
         [HttpGet("")]
         public async Task<ActionResult<IEnumerable<ComposerResourse>>> GetAllComposer()
         {
-            var composers = await _composerService.GetAllComposers();
-            var composerResources= _mapperService.Map<IEnumerable<Composer>, IEnumerable<ComposerResourse>>(composers);
-            return Ok(composerResources);
+            try
+            {
+                IEnumerable<Composer> composers = await _composerService.GetAllComposers();
+                IEnumerable<ComposerResourse> composerResources = _mapperService.Map<IEnumerable<Composer>, IEnumerable<ComposerResourse>>(composers);
+                return Ok(composerResources);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
         }
 
@@ -38,11 +44,12 @@ namespace MyMusic.API.Controllers
         {
             try
             {
-                var composer = await _composerService.GetComposerById(id);
-                if (composer == null) return NotFound();
-                var composerresource = _mapperService.Map<Composer, ComposerResourse>(composer);
+                Composer composer = await _composerService.GetComposerById(id);
+                if (composer == null) return BadRequest("COMPOSER NOT FOUND !!");
+                ComposerResourse composerresource = _mapperService.Map<Composer, ComposerResourse>(composer);
                 return Ok(composer);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -52,49 +59,69 @@ namespace MyMusic.API.Controllers
         [HttpPost("")]
         public async Task<ActionResult<ComposerResourse>> CreateComposer(SaveComposerResource saveComposerResource)
         {
+            try
+            {
+                //validation
+                SaveComposerResourceValidator validation = new SaveComposerResourceValidator();
+                ValidationResult validationResult = await validation.ValidateAsync(saveComposerResource);
+                if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
-            //validation
-            var validation = new SaveComposerResourceValidator();
-            var validationResult = await validation.ValidateAsync(saveComposerResource);
-            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
-
-            // mappage
-            var composer= _mapperService.Map<SaveComposerResource, Composer>(saveComposerResource);
-            // Create Composer
-            var composerNew=await _composerService.Create(composer);
-            var composerresource = _mapperService.Map<Composer, ComposerResourse>(composerNew);
-            return Ok(composerresource);
-
+                // mappage view to bd
+                Composer composer = _mapperService.Map<SaveComposerResource, Composer>(saveComposerResource);
+                // Create Composer
+                Composer composerNew = await _composerService.Create(composer);
+                // mappage bd to view
+                ComposerResourse composerresource = _mapperService.Map<Composer, ComposerResourse>(composerNew);
+                return Ok(composerresource);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpPut("")]
         public async Task<ActionResult<ComposerResourse>> UpdateComposer(string id, SaveComposerResource saveComposerResource)
         {
+            try
+            {
+                // si le id existe 
+                Composer composerUpdate = await _composerService.GetComposerById(id);
+                if (composerUpdate == null) return NotFound();
 
-            //validation
-            var validation = new SaveComposerResourceValidator();
-            var validationResult = await validation.ValidateAsync(saveComposerResource);
-            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
-            // si le id existe 
-            var composerUpdate = await _composerService.GetComposerById(id);
-            if (composerUpdate == null) return NotFound();
+                //validation
+                SaveComposerResourceValidator validation = new SaveComposerResourceValidator();
+                ValidationResult validationResult = await validation.ValidateAsync(saveComposerResource);
+                if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
-            // mappage
-            var composer = _mapperService.Map<SaveComposerResource, Composer>(saveComposerResource);
-             _composerService.Update(id, composer);
-            // mappage
-            var composerNewUpdate = await _composerService.GetComposerById(id);
-            var composerresource = _mapperService.Map<Composer, ComposerResourse>(composerNewUpdate);
-            return Ok(composerresource);
+                // mappage view to db
+                Composer composer = _mapperService.Map<SaveComposerResource, Composer>(saveComposerResource);
+                _composerService.Update(id, composer);
+                // get the new updated composer
+                Composer composerNewUpdate = await _composerService.GetComposerById(id);
+                //mappage to db to view
+                ComposerResourse composerresource = _mapperService.Map<Composer, ComposerResourse>(composerNewUpdate);
+                return Ok(composerresource);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteComposerById(string id)
         {
-            var composer = await _composerService.GetComposerById(id);
-            if (composer == null) return NotFound();
-            await _composerService.Delete(id);
-            return NoContent();
-
+            try
+            {
+                Composer composer = await _composerService.GetComposerById(id);
+                if (composer == null) return NotFound();
+                await _composerService.Delete(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
