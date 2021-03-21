@@ -34,7 +34,7 @@ namespace MyMusicMVC.Controllers
         }
         public async Task<IActionResult> AddMusic()
         {
-            MusicViewModel musicViwModel = new MusicViewModel();
+            var musicViwModel = new MusicViewModel();
             List<Artist> artistList = new List<Artist>();
 
             using (var httpClient = new HttpClient())
@@ -48,8 +48,8 @@ namespace MyMusicMVC.Controllers
             }
             musicViwModel.ArtistList = new SelectList(artistList, "Id", "Name");
             return View(musicViwModel);
-        }
 
+        }
         [HttpPost]
         public async Task<IActionResult> AddMusic(MusicViewModel musicModelView)
         {
@@ -57,25 +57,27 @@ namespace MyMusicMVC.Controllers
             {
                 using (var client = new HttpClient())
                 {
-                    Music music = new Music() { ArtistId = int.Parse(musicModelView.AristId), Name = musicModelView.Music.Name };
-                   // var JWToken = HttpContext.Session.GetString("token");
-                    //if (string.IsNullOrEmpty(JWToken))
-                    //{
-                    //    ViewBag.MessageError = "You must be authenticate";
-                    //    return View(musicModelView);
-                    //}
+                    var music = new Music() { ArtistId = int.Parse(musicModelView.AristId), Name = musicModelView.Music.Name };
+                    var JWToken = HttpContext.Session.GetString("token");
+                    if (string.IsNullOrEmpty(JWToken))
+                    {
+                        ViewBag.MessageError = "You must be authenticate";
+                        return View(musicModelView);
+                    }
                     string stringData = JsonConvert.SerializeObject(music);
-                    StringContent contentData = new StringContent(stringData, System.Text.Encoding.UTF8, "application/json");
-                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", JWToken);
-                    HttpResponseMessage response = await client.PostAsync(URLBase + "Music", contentData);
-                    bool result = response.IsSuccessStatusCode;
+                    var contentData = new StringContent(stringData, System.Text.Encoding.UTF8, "application/json");
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", JWToken);
+                    var response = await client.PostAsync(URLBase + "Music", contentData);
+                    var result = response.IsSuccessStatusCode;
                     if (result)
                     {
                         return RedirectToAction("Index", "Home");
                     }
                     ViewBag.MessageError = response.ReasonPhrase;
                     return View(musicModelView);
+
                 }
+
             }
             return View(musicModelView);
         }
