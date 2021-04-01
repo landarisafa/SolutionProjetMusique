@@ -60,7 +60,7 @@ namespace MyMusic.API.Controllers
         }
 
         [HttpPost("")]
-        [Authorize]
+       // [Authorize]
         public async Task<ActionResult<MusicResource>> CreateMusic(SaveMusicResource saveMusicResource)
         {
             try
