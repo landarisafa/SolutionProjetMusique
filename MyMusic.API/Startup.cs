@@ -13,6 +13,7 @@ using MyMusic.Data.MongoDB.Repository;
 using MyMusic.Data.MongoDB.Setting;
 using MyMusic.Services.Services;
 using MyMusicCore;
+using MyMusicCore.Repository;
 using MyMusicCore.Services;
 using MysMusic.Core.Repositories;
 using MysMusic.Core.Services;
@@ -61,11 +62,13 @@ namespace MyMusic.API
 
             //DI IComposerRepository
             services.AddScoped<IComposerRepository, ComposerRepository>();
+            services.AddScoped<IFilesRepository, FilesRepository>();
 
             // Services 
             services.AddTransient<IMusicService, MusicService>();
             services.AddTransient<IArtistService, ArtistService>();
             services.AddTransient<IComposerService, ComposerService>();
+            services.AddTransient<IFilesService, FilesService>();
 
             //swagger
             services.AddSwaggerGen(c =>
